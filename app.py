@@ -14,7 +14,7 @@ def load_data():
 @app.route('/')
 def home():
     flowers = load_data()
-    return render_template('index.html')
+    return render_template('index.html', flowers=flowers)
 
 
 if __name__ == '__main__':
