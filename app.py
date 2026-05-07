@@ -9,12 +9,14 @@ import json
 def load_data():
     with open('data/flowers.json') as file:
         flowers = json.load(file)
-    return flowers
+    with open('data/addons.json') as file:
+        addons = json.load(file)
+    return {'flowers': flowers, 'addons': addons}
 
 @app.route('/')
 def home():
-    flowers = load_data()
-    return render_template('index.html', flowers=flowers)
+    data = load_data()
+    return render_template('index.html', flowers=data['flowers'], addons=data['addons'])
 
 
 if __name__ == '__main__':

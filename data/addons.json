@@ -1,0 +1,5 @@
+{
+    "Card": {"price": 5},
+    "Wrapping": {"price": 10},
+    "Delivery": {"price": 15}
+}
