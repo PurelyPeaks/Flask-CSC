@@ -11,25 +11,36 @@ def load_data():
         flowers = json.load(file)
     with open('data/addons.json') as file:
         addons = json.load(file)
-    return {'flowers': flowers, 'addons': addons}
+    return flowers, addons
 
 @app.route('/')
 def home():
-    data = load_data()
-    return render_template('index1.html', **data)
+    flowers, addons = load_data()
+    return render_template('index1.html', flowers=flowers, addons=addons)
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
-    data = load_data()
-    if 'cart' not in session:
-        session['cart'] = []
-    flower = request.form.get('flower')
-    quantity = request.form.get('quantity', 1, type=int)
-    if flower and flower in data['flowers']:
-        session['cart'].append({'flower': flower, 'quantity': quantity})
-        session.modified = True
-        flash('Added to cart!')
-    return render_template('index1.html', **data)
+    flower = request.form['flower']
+    quantity = int(request.form['quantity'])
+    flowers, addons = load_data()
+    cart = session.get('cart', {})
+
+    if flower not in flowers:
+        flash("Invalid flower selected.")
+        return redirect(url_for('home'))
+
+    if flower in cart:
+        cart[flower]['quantity'] += quantity
+    else:
+        cart[flower] = {
+            'price': flowers[flower]['price'],
+            'quantity': quantity
+        }
+
+    session['cart'] = cart
+    session.modified = True
+    flash(f"{quantity} {flower}(s) added to cart.")
+    return redirect(url_for('home'))
 
 
 
