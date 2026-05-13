@@ -16,12 +16,14 @@ def load_data():
 @app.route('/')
 def home():
     flowers, addons = load_data()
-    return render_template('index1.html', flowers=flowers, addons=addons)
+    cart = session.get('cart', {})
+    return render_template('index1.html', flowers=flowers, addons=addons, cart=cart)
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     flower = request.form['flower']
     quantity = int(request.form['quantity'])
+    selected_addons = request.form.getlist('addons')
     flowers, addons = load_data()
     cart = session.get('cart', {})
 
@@ -29,17 +31,44 @@ def add_to_cart():
         flash("Invalid flower selected.")
         return redirect(url_for('home'))
 
+    if any(addon not in addons for addon in selected_addons):
+        flash("Invalid add-on selected.")
+        return redirect(url_for('home'))
+
+    addon_cost = sum(addons[addon]['price'] for addon in selected_addons)
     if flower in cart:
         cart[flower]['quantity'] += quantity
+        existing_addons = set(cart[flower].get('addons', []))
+        all_addons = sorted(existing_addons.union(selected_addons))
+        cart[flower]['addons'] = all_addons
+        cart[flower]['addon_cost'] = sum(addons[addon]['price'] for addon in all_addons)
     else:
         cart[flower] = {
             'price': flowers[flower]['price'],
-            'quantity': quantity
+            'quantity': quantity,
+            'addons': selected_addons,
+            'addon_cost': addon_cost
         }
 
     session['cart'] = cart
     session.modified = True
-    flash(f"{quantity} {flower}(s) added to cart.")
+    addons_text = f" with {', '.join(selected_addons)}" if selected_addons else ""
+    flash(f"{quantity} {flower}(s){addons_text} added to cart.")
+    return redirect(url_for('home'))
+
+@app.route('/remove_from_cart', methods=['POST'])
+def remove_from_cart():
+    flower = request.form['flower']
+    cart = session.get('cart', {})
+
+    if flower in cart:
+        del cart[flower]
+        session['cart'] = cart
+        session.modified = True
+        flash(f"{flower} removed from cart.")
+    else:
+        flash("Item not found in cart.")
+
     return redirect(url_for('home'))
 
 
