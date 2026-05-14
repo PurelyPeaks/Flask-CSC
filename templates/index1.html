@@ -94,6 +94,12 @@
                     </tr>
                 {% endfor %}
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4"><strong>Cart Total</strong></td>
+                    <td colspan="2"><strong>${{ cart_total }}</strong></td>
+                </tr>
+            </tfoot>
         </table>
     {% else %}
         <p>Your cart is empty.</p>

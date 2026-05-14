@@ -17,7 +17,11 @@ def load_data():
 def home():
     flowers, addons = load_data()
     cart = session.get('cart', {})
-    return render_template('index1.html', flowers=flowers, addons=addons, cart=cart)
+    cart_total = sum(
+        details['price'] * details['quantity'] + details.get('addon_cost', 0)
+        for details in cart.values()
+    )
+    return render_template('index1.html', flowers=flowers, addons=addons, cart=cart, cart_total=cart_total)
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
