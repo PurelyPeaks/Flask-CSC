@@ -78,6 +78,29 @@ def remove_from_cart():
 
 
 
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    name = request.form.get('name', '').strip()
+    cart = session.get('cart', {})
+
+    if not cart:
+        flash("Your cart is empty.")
+        return redirect(url_for('home'))
+
+    if not name:
+        flash("Please enter your name to checkout.")
+        return redirect(url_for('home'))
+
+    cart_total = sum(
+        details['price'] * details['quantity'] + details.get('addon_cost', 0)
+        for details in cart.values()
+    )
+    session.pop('cart', None)
+    session.modified = True
+    flash(f"Thank you, {name}! Your order total is ${cart_total:.2f}.")
+    return redirect(url_for('home'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
     
