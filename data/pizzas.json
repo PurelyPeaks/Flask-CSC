@@ -1,0 +1,6 @@
+{
+  "Margherita": {"price": 10},
+  "Pepperoni": {"price": 13},
+  "Vegetarian": {"price": 12},
+  "Hawaiian": {"price": 14}
+}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .back-link { margin-bottom: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <h1>Order History</h1>
+    <p class="back-link"><a href="{{ url_for('home') }}">Back to shop</a></p>
+
+    {% if orders %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Delivery</th>
+                    <th>Address / Phone</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.customer_name }}</td>
+                        <td>
+                            {% if order.delivery_method == 'delivery' %}
+                                Delivery<br>${{ "%.2f"|format(order.delivery_charge or 0) }}
+                            {% else %}
+                                Pickup<br>No delivery charge
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.address %}
+                                {{ order.address }}<br>{{ order.phone_number }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set order_items = order.get('items', {}) %}
+                            {% for pizza, details in order_items.items() %}
+                                {{ pizza }} x{{ details['quantity'] }}
+                                {% set toppings = details.get('toppings', []) %}
+                                {% if toppings %}
+                                    (toppings: {{ toppings | join(', ') }})
+                                {% endif %}<br>
+                            {% endfor %}
+                        </td>
+                        <td>${{ "%.2f"|format(order['total']) }}</td>
+                        <td>{{ order.created_at }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No orders yet.</p>
+    {% endif %}
+</body>
+</html>
