@@ -11,7 +11,7 @@ DB_PATH = BASE_DIR / 'orders.db'
 
 app = Flask(__name__)
 app.secret_key = 'pizza-secret'
-MAX_PIZZAS_PER_ORDER = 20
+MAX_PIZZAS_PER_ORDER = 5
 
 
 def load_data():
