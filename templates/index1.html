@@ -15,13 +15,19 @@
         input, select, button { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 4px; }
         .toggle-row { display: flex; gap: 10px; margin-top: 8px; }
         .toggle-row label { font-weight: normal; display: flex; align-items: center; gap: 6px; }
+        .pizza-menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .pizza-card { background: #faf7f1; border: 1px solid #ddd; border-radius: 12px; padding: 14px; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+        .pizza-card:hover { transform: translateY(-2px); }
+        .pizza-card.selected { border-color: #ff6b00; box-shadow: 0 6px 20px rgba(255, 107, 0, 0.15); }
+        .pizza-card h3 { margin: 0 0 6px; font-size: 1rem; }
+        .pizza-card p { margin: 4px 0; color: #555; }
         table { border-collapse: collapse; width: 100%; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
         button { width: auto; padding: 8px 12px; cursor: pointer; }
         .summary-total { font-weight: bold; font-size: 1.05em; }
         .link-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        @media (max-width: 900px) { .page-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .page-grid { grid-template-columns: 1fr; } .pizza-menu { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -59,7 +65,7 @@
                     <label><input type="radio" name="delivery_method" value="delivery"> Delivery</label>
                 </div>
 
-                <p><strong>Delivery charge: $3.00</strong></p>
+                <p id="delivery-charge-message" style="display:none;"><strong>Delivery charge: $3.00</strong></p>
                 <button type="submit">Save Order</button>
             </form>
         </div>
@@ -67,12 +73,17 @@
         <div class="panel">
             <h2>Build Your Pizza</h2>
             <form action="{{ url_for('add_to_cart') }}" method="post">
-                <label for="pizza">Pizza</label>
-                <select name="pizza" id="pizza">
+                <div class="pizza-menu">
                     {% for pizza, details in pizzas.items() %}
-                        <option value="{{ pizza }}">{{ pizza }} - ${{ details.price }}</option>
+                        <div class="pizza-card" data-pizza="{{ pizza }}">
+                            <h3>{{ pizza }}</h3>
+                            <p>{{ details.description }}</p>
+                            <p><strong>${{ details.price }}</strong></p>
+                        </div>
                     {% endfor %}
-                </select>
+                </div>
+
+                <input type="hidden" name="pizza" id="pizza" value="{{ pizzas|first[0] if pizzas else '' }}">
 
                 <label for="quantity">Quantity</label>
                 <input type="number" name="quantity" id="quantity" value="1" min="1" max="5">
@@ -126,13 +137,46 @@
             {% endif %}
         </div>
     </div>
+
+    <script>
+        const deliveryMethodInputs = document.querySelectorAll('input[name="delivery_method"]');
+        const deliveryChargeMessage = document.getElementById('delivery-charge-message');
+        const pizzaCards = document.querySelectorAll('.pizza-card');
+        const pizzaSelect = document.getElementById('pizza');
+
+        function updateDeliveryChargeVisibility() {
+            const selected = document.querySelector('input[name="delivery_method"]:checked');
+            if (selected && selected.value === 'delivery') {
+                deliveryChargeMessage.style.display = 'block';
+            } else {
+                deliveryChargeMessage.style.display = 'none';
+            }
+        }
+
+        function highlightSelectedPizza(pizzaName) {
+            pizzaCards.forEach(card => {
+                card.classList.toggle('selected', card.dataset.pizza === pizzaName);
+            });
+        }
+
+        function selectPizza(pizzaName) {
+            pizzaSelect.value = pizzaName;
+            highlightSelectedPizza(pizzaName);
+        }
+
+        pizzaCards.forEach(card => {
+            card.addEventListener('click', () => selectPizza(card.dataset.pizza));
+        });
+
+        if (pizzaCards.length > 0) {
+            selectPizza(pizzaCards[0].dataset.pizza);
+        }
+
+        deliveryMethodInputs.forEach(function(input) {
+            input.addEventListener('change', updateDeliveryChargeVisibility);
+        });
+
+        updateDeliveryChargeVisibility();
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-

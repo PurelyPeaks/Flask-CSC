@@ -1,6 +1,17 @@
 {
-  "Margherita": {"price": 10},
-  "Pepperoni": {"price": 13},
-  "Vegetarian": {"price": 12},
-  "Hawaiian": {"price": 14}
+  "BYO Pizza": {"price": 10, "description": "Plain base"},
+  "Pepperoni": {"price": 13, "description": "Classic pepperoni"},
+  "Meat Lovers": {"price": 15, "description": "4-meat blend"},
+  "Supreme": {"price": 16, "description": "Works pizza"},
+  "Hawaiian": {"price": 14, "description": "Ham & pineapple"},
+  "Vegetarian": {"price": 14, "description": "Veggie mix"},
+  "BBQ Chicken": {"price": 16, "description": "Smoky BBQ"},
+  "Margherita": {"price": 12, "description": "Fresh basil"},
+  "Four Cheese": {"price": 15, "description": "White base"},
+  "Buffalo Chix": {"price": 17, "description": "Spicy ranch"},
+  "The Greek": {"price": 16, "description": "Feta & olive"},
+  "Philly Steak": {"price": 17, "description": "Shaved steak"},
+  "Chix Bacon": {"price": 17, "description": "Garlic aioli"},
+  "Spicy Jalapeno": {"price": 15, "description": "Chilli flakes"},
+  "Manager Special": {"price": 18, "description": "Promo pizza"}
 }
