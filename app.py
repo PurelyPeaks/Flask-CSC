@@ -177,6 +177,7 @@ def checkout():
     delivery_method = request.form.get('delivery_method', 'pickup').strip().lower()
     address = request.form.get('address', '').strip()
     phone_number = request.form.get('phone_number', '').strip()
+    discount_choice = request.form.get('discount', '0')
     cart = session.get('cart', {})
 
     if not cart:
@@ -195,9 +196,19 @@ def checkout():
         flash('Please choose pickup or delivery.')
         return redirect(url_for('home'))
 
+    try:
+        discount_percent = int(discount_choice)
+    except (TypeError, ValueError):
+        discount_percent = 0
+
+    if discount_percent not in {0, 10, 20, 30}:
+        flash('Please choose a valid discount.')
+        return redirect(url_for('home'))
+
     cart_total = calculate_cart_total(cart)
+    discount_amount = round(cart_total * discount_percent / 100, 2)
     delivery_charge = 3.0 if delivery_method == 'delivery' else 0.0
-    final_total = round(cart_total + delivery_charge, 2)
+    final_total = round(cart_total - discount_amount + delivery_charge, 2)
 
     conn = get_db_connection()
     cursor = conn.cursor()
