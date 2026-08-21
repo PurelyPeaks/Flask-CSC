@@ -74,6 +74,12 @@
                 </select>
 
                 <p id="delivery-charge-message" style="display:none;"><strong>Delivery charge: $3.00</strong></p>
+                <div class="checkout-total" aria-live="polite">
+                    <p>Subtotal: $<span id="checkout-subtotal">{{ '%.2f'|format(cart_total) }}</span></p>
+                    <p>Discount: -$<span id="checkout-discount">0.00</span></p>
+                    <p class="summary-total">Final total: $<span id="checkout-total">{{ '%.2f'|format(cart_total) }}</span></p>
+                </div>
+                <input type="hidden" id="cart-total-value" value="{{ cart_total }}">
                 <button type="submit">Save Order</button>
             </form>
         </div>
@@ -149,16 +155,32 @@
     <script>
         const deliveryMethodInputs = document.querySelectorAll('input[name="delivery_method"]');
         const deliveryChargeMessage = document.getElementById('delivery-charge-message');
+        const discountSelect = document.getElementById('discount');
+        const checkoutSubtotal = document.getElementById('checkout-subtotal');
+        const checkoutDiscount = document.getElementById('checkout-discount');
+        const checkoutTotal = document.getElementById('checkout-total');
+        const cartTotal = Number(document.getElementById('cart-total-value').value) || 0;
         const pizzaCards = document.querySelectorAll('.pizza-card');
         const pizzaSelect = document.getElementById('pizza');
 
         function updateDeliveryChargeVisibility() {
             const selected = document.querySelector('input[name="delivery_method"]:checked');
+            const deliveryCharge = selected && selected.value === 'delivery' ? 3 : 0;
             if (selected && selected.value === 'delivery') {
                 deliveryChargeMessage.style.display = 'block';
             } else {
                 deliveryChargeMessage.style.display = 'none';
             }
+            updateCheckoutTotal(deliveryCharge);
+        }
+
+        function updateCheckoutTotal(deliveryCharge = 0) {
+            const discountPercent = Number(discountSelect.value) || 0;
+            const discountAmount = Number((cartTotal * discountPercent / 100).toFixed(2));
+            const finalTotal = cartTotal - discountAmount + deliveryCharge;
+            checkoutSubtotal.textContent = cartTotal.toFixed(2);
+            checkoutDiscount.textContent = discountAmount.toFixed(2);
+            checkoutTotal.textContent = finalTotal.toFixed(2);
         }
 
         function highlightSelectedPizza(pizzaName) {
@@ -183,6 +205,7 @@
         deliveryMethodInputs.forEach(function(input) {
             input.addEventListener('change', updateDeliveryChargeVisibility);
         });
+        discountSelect.addEventListener('change', updateDeliveryChargeVisibility);
 
         updateDeliveryChargeVisibility();
     </script>
