@@ -151,16 +151,18 @@
                     </tbody>
                 </table>
                 <p class="summary-total">Cart Total: ${{ cart_total }}</p>
-                <section class="receipt" aria-labelledby="receipt-heading">
-                    <h3 id="receipt-heading">Receipt</h3>
+            {% else %}
+                <p>Your cart is empty.</p>
+            {% endif %}
+            <section class="receipt" aria-labelledby="receipt-heading">
+                <h3 id="receipt-heading">Receipt</h3>
+                {% if cart %}
                     <ul class="receipt-list">
                         {% for pizza, details in cart.items() %}
-                            {% for item_number in range(details.quantity) %}
-                                <li>
-                                    <span>{{ pizza }}{% if details.toppings %}<br><small>{{ details.toppings | join(', ') }}</small>{% endif %}</span>
-                                    <span>${{ '%.2f'|format(details.price) }}</span>
-                                </li>
-                            {% endfor %}
+                            <li>
+                                <span>{{ pizza }} x{{ details.quantity }}{% if details.toppings %}<br><small>{{ details.toppings | join(', ') }}</small>{% endif %}</span>
+                                <span>${{ '%.2f'|format(details.price * details.quantity) }}</span>
+                            </li>
                             {% if details.topping_cost %}
                                 <li class="receipt-addon">
                                     <span>{{ pizza }} toppings</span>
@@ -170,10 +172,11 @@
                         {% endfor %}
                     </ul>
                     <p class="receipt-total"><span>Total</span><span>${{ '%.2f'|format(cart_total) }}</span></p>
-                </section>
-            {% else %}
-                <p>Your cart is empty.</p>
-            {% endif %}
+                {% else %}
+                    <p>Your receipt will appear here when you add a pizza.</p>
+                    <p class="receipt-total"><span>Total</span><span>$0.00</span></p>
+                {% endif %}
+            </section>
         </div>
     </div>
 
