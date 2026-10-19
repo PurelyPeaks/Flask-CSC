@@ -24,6 +24,11 @@
         table { border-collapse: collapse; width: 100%; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
+        .receipt { margin-top: 20px; padding-top: 12px; border-top: 2px dashed #ccc; }
+        .receipt-list { list-style: none; padding: 0; margin: 10px 0; }
+        .receipt-list li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px dotted #ddd; }
+        .receipt-list .receipt-addon { color: #666; font-size: 0.9em; }
+        .receipt-total { display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #999; font-weight: bold; }
         button { width: auto; padding: 8px 12px; cursor: pointer; }
         .summary-total { font-weight: bold; font-size: 1.05em; }
         .link-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -146,6 +151,26 @@
                     </tbody>
                 </table>
                 <p class="summary-total">Cart Total: ${{ cart_total }}</p>
+                <section class="receipt" aria-labelledby="receipt-heading">
+                    <h3 id="receipt-heading">Receipt</h3>
+                    <ul class="receipt-list">
+                        {% for pizza, details in cart.items() %}
+                            {% for item_number in range(details.quantity) %}
+                                <li>
+                                    <span>{{ pizza }}{% if details.toppings %}<br><small>{{ details.toppings | join(', ') }}</small>{% endif %}</span>
+                                    <span>${{ '%.2f'|format(details.price) }}</span>
+                                </li>
+                            {% endfor %}
+                            {% if details.topping_cost %}
+                                <li class="receipt-addon">
+                                    <span>{{ pizza }} toppings</span>
+                                    <span>${{ '%.2f'|format(details.topping_cost) }}</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    <p class="receipt-total"><span>Total</span><span>${{ '%.2f'|format(cart_total) }}</span></p>
+                </section>
             {% else %}
                 <p>Your cart is empty.</p>
             {% endif %}
